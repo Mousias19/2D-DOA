@@ -1,0 +1,46 @@
+function [degrees,delay] = MUSIC(rxGridEst,M,d,N,fc,K)
+%   Auto-correlation matrix
+    Rxx = rxGridEst*rxGridEst'/K;
+%   eigenvalue decomposition
+    [Vi,Li] = eig(Rxx);
+%   sort in descending order
+    [L,I] = sort(diag(Li),'descend');
+    V = Vi(:,I);
+%   Signal Subspace
+    Ps = V(:,1:M)*V(:,1:M)';
+%   Noise Subspace
+    Pn = V(:,1+M:N)*V(:,1+M:N)';
+    SampleRate = 15360000;
+    delay1 = 1/SampleRate;
+    theta1=[0:0.1:90];
+    tau=[0:delay1:delay1*160];
+%   Search in 2-D space
+    for i=1:length(theta1)
+        for j = 1:length(tau)
+            phi1 = 2*pi*d*sin(theta1(i)*pi/180);
+            A1=zeros([N 1]);
+            for k=1:N
+                A1(k,1) = exp((k-1)*1i*phi1)*exp(2*pi*tau(j));
+            end
+    %   The MUSIC spectrum
+            PMUSIC(i,j)= N/abs(diag(A1'*Pn*A1));
+        end
+    end
+    [C,I] = max(PMUSIC(:));
+    [I1,I2] = ind2sub(size(PMUSIC),I);
+    deg = I1-1/10;
+    del = I2-1;
+    
+    figure(1);
+    [X,Y] = meshgrid(theta1,tau);
+    surf(X,Y,10*log10(PMUSIC)')
+    shading interp 
+    colorbar    
+    xlabel('Angle [degrees]');
+    ylabel('Delay (s)');
+    zlabel('PMUSIC [dB]');
+    
+    degrees = deg;
+    delay = del;
+
+end
