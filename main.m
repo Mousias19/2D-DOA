@@ -18,6 +18,7 @@ nLayers = min(nTxAnts,nRxAnts);
 
 srs = nrSRSConfig;
 srs.NumSRSSymbols = 1;          % Number of OFDM symbols allocated per slot (1,2,4)
+srs.GroupSeqHopping = 'groupHopping';
 srs.SymbolStart = 8;            % Starting OFDM symbol within a slot
 srs.NumSRSPorts = 1;            % Number of SRS antenna ports (1,2,4).
 srs.FrequencyStart = 0;         % Frequency position of the SRS in BWP in RBs
@@ -32,42 +33,42 @@ srs.ResourceType = 'aperiodic';  % Resource type ('periodic', 'semi-persistent',
 srs.SRSPositioning = 1;
 srs.NSRSID = 0;
 
-srs2 = nrSRSConfig;
-srs2.NumSRSSymbols = 1;          % Number of OFDM symbols allocated per slot (1,2,4)
-srs2.SymbolStart = 8;            % Starting OFDM symbol within a slot
-srs2.NumSRSPorts = 1;            % Number of SRS antenna ports (1,2,4).
-srs2.FrequencyStart = 0;         % Frequency position of the SRS in BWP in RBs
-srs2.NRRC = 0;                   % Additional offset from FreqStart specified in blocks of 4 PRBs (0...67)
-srs2.CSRS = 14;                  % Bandwidth configuration C_SRS (0...63). It controls the allocated bandwidth to the SRS
-srs2.BSRS = 0;                   % Bandwidth configuration B_SRS (0...3). It controls the allocated bandwidth to the SRS
-srs2.BHop = 0;                   % Frequency hopping configuration (0...3). Set BHop < BSRS to enable frequency hopping
-srs2.KTC = 2;                    % Comb number (2,4). Frequency density in subcarriers
-srs2.Repetition = 2;             % Repetition (1,2,4). It disables frequency hopping in blocks of |Repetition| symbols
-srs2.SRSPeriod = [2 0];          % Periodicity and offset in slots. SRSPeriod(2) must be < SRSPeriod(1)
-srs2.ResourceType = 'aperiodic';  % Resource type ('periodic', 'semi-persistent','aperiodic'). Use 'aperiodic' to disable inter-slot frequency hopping
-srs2.SRSPositioning = 1;
-srs2.NSRSID = 56;
-
-channel = nrTDLChannel;
-channel.DelayProfile = 'Custom';
-channel.FadingDistribution = 'Rician';
-channel.KFactorFirstTap = 13.3;
-channel.PathDelays = [0];
-channel.AveragePathGains = [0];
-channel.NumTransmitAntennas = 1;
-channel.NumReceiveAntennas = 1;
-channel.SampleRate = 15360000;
-channel.NormalizePathGains = false;
-
-channel2 = nrTDLChannel;
-channel2.DelayProfile = 'Custom';
-channel2.FadingDistribution = 'Rayleigh';
-channel2.PathDelays = [0];
-channel2.AveragePathGains = [-3];
-channel2.NumTransmitAntennas = 1;
-channel2.NumReceiveAntennas = 1;
-channel2.SampleRate = 15360000;
-channel2.NormalizePathGains = false;
+% srs2 = nrSRSConfig;
+% srs2.NumSRSSymbols = 1;          % Number of OFDM symbols allocated per slot (1,2,4)
+% srs2.SymbolStart = 8;            % Starting OFDM symbol within a slot
+% srs2.NumSRSPorts = 1;            % Number of SRS antenna ports (1,2,4).
+% srs2.FrequencyStart = 0;         % Frequency position of the SRS in BWP in RBs
+% srs2.NRRC = 0;                   % Additional offset from FreqStart specified in blocks of 4 PRBs (0...67)
+% srs2.CSRS = 14;                  % Bandwidth configuration C_SRS (0...63). It controls the allocated bandwidth to the SRS
+% srs2.BSRS = 0;                   % Bandwidth configuration B_SRS (0...3). It controls the allocated bandwidth to the SRS
+% srs2.BHop = 0;                   % Frequency hopping configuration (0...3). Set BHop < BSRS to enable frequency hopping
+% srs2.KTC = 2;                    % Comb number (2,4). Frequency density in subcarriers
+% srs2.Repetition = 2;             % Repetition (1,2,4). It disables frequency hopping in blocks of |Repetition| symbols
+% srs2.SRSPeriod = [2 0];          % Periodicity and offset in slots. SRSPeriod(2) must be < SRSPeriod(1)
+% srs2.ResourceType = 'aperiodic';  % Resource type ('periodic', 'semi-persistent','aperiodic'). Use 'aperiodic' to disable inter-slot frequency hopping
+% srs2.SRSPositioning = 1;
+% srs2.NSRSID = 56;
+% 
+% channel = nrTDLChannel;
+% channel.DelayProfile = 'Custom';
+% channel.FadingDistribution = 'Rayleigh';
+% channel.KFactorFirstTap = 13.3;
+% channel.PathDelays = [0];
+% channel.AveragePathGains = [0];
+% channel.NumTransmitAntennas = 1;
+% channel.NumReceiveAntennas = 1;
+% channel.SampleRate = 15360000;
+% channel.NormalizePathGains = false;
+% 
+% channel2 = nrTDLChannel;
+% channel2.DelayProfile = 'Custom';
+% channel2.FadingDistribution = 'Rayleigh';
+% channel2.PathDelays = [4e-7];
+% channel2.AveragePathGains = [0];
+% channel2.NumTransmitAntennas = 1;
+% channel2.NumReceiveAntennas = 1;
+% channel2.SampleRate = 15360000;
+% channel2.NormalizePathGains = false;
 
 % Number of slots to simulate
 numSlots = numFrames*ue.SlotsPerFrame;
@@ -86,7 +87,7 @@ L = ue.SymbolsPerSlot;
 %             % OFDM Modulation
 %             [txWaveform2,waveformInfo1] = nrOFDMModulate(ue,txGrid2);
 
-for nSlot = 0:numSlots-1
+for nSlot = 0:0
             % Update slot counter
             ue.NSlot = nSlot;
 
@@ -101,7 +102,7 @@ for nSlot = 0:numSlots-1
             % Determine if the slot contains SRS
             isSRSSlot= ~isempty(srsSymbols);
             % OFDM Modulation
-            [txWaveform,waveformInfo] = nrOFDMModulate(ue,txGrid);
+            [txWaveform,waveformInfo] = nrOFDMModulate(ue,txGrid,'CarrierFrequency',fc);
             
             c = physconst('LightSpeed');
          %  lambda (λ)
@@ -109,21 +110,21 @@ for nSlot = 0:numSlots-1
          %  Element Spacing
             d = 0.5*wavelength;
          %  Number of Elements   
-            N = 12;
+            N = 4;
             
-            theta = [20;60];
+            theta = [20;70];
          %  Number of sources
             M = length(theta);
 
             for k = 1:M
                 SteeringVector(:, k) = exp(1i*2*pi*(d/wavelength)*sind(theta(k))*[0:N-1]'); 
             end
-            
-%              Transmission through channel
-            [rxWaveform1,pathGains] = channel(txWaveform);
-            [rxWaveform2,pathGains2] = channel2(txWaveform);
-            chanFilt = comm.ChannelFilter('SampleRate', 15360000,'PathDelays',[1e-6]);
-            rxWaveform1(:,2) = chanFilt(rxWaveform2,pathGains2);
+
+            [rxWaveform1] = txWaveform;
+            rxWaveform1(:,2) = delayseq(0.1*rxWaveform1(:,1),5e-9,15360000);
+%            [rxWaveform1(:,2),pathGains2] = channel2(txWaveform);
+%            chanFilt = comm.ChannelFilter('SampleRate', 15360000,'PathDelays',[5e-7]);
+%            rxWaveform1(:,2) = chanFilt(rxWaveform1(:,2),pathGains2);
 
             x1 = SteeringVector*rxWaveform1.';
             x = x1;
@@ -131,7 +132,7 @@ for nSlot = 0:numSlots-1
  
 %           x = awgn(x,10,'measured');
           % OFDM Demodulation
-            rxGrid = nrOFDMDemodulate(ue,x);
+            rxGrid = nrOFDMDemodulate(ue,x,'CarrierFrequency',fc);
             subcarr = length(rxGrid(:,1));
           % Check Normal/Extended Cyclic Prefix
             if strcmp(ue.CyclicPrefix,'normal')
@@ -142,8 +143,8 @@ for nSlot = 0:numSlots-1
                     rxGridEst(:,:) = C(:,:,i);
                     zer = zeros(1,subcarr/2);
                     srsSym = srsSymbols(1:subcarr/2).';
-%                     srscsi = [srsSym; zer];
-%                     srscsi = reshape(srscsi,1,[]);
+                    srscsi = [srsSym; zer];
+                    srscsi = reshape(srscsi,1,[]);
                     rxGridEst = rxGridEst.';
 %                      for i = 1:N
 %                          CSI(:,i)= rxGridEst(i,:)./srscsi;
@@ -151,8 +152,9 @@ for nSlot = 0:numSlots-1
 %                      for i = 1:312
 %                          CSI1(i,:) = CSI(2*i-1,:);
 %                      end
+%                      CSI1 = CSI1.';
                     conjSRS = conj(srsSym);
-                    rxGridEst1(1:N,1:subcarr/2) = zeros;
+                    rxGridEst1(1:N,1:subcarr) = zeros;
                     for ii = 1:subcarr/2
                         rxGridEst1(1:N,ii*2-1) = conjSRS(ii)*rxGridEst(1:N,ii*2-1);
                     end
